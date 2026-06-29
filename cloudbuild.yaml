@@ -1,14 +1,35 @@
-# Build the Docker image
+# This file defines the Google Cloud Build pipeline.
+# See https://cloud.google.com/build/docs/build-config-file-schema
+
 steps:
+  # Step 1: Build the Docker image for the Flask application.
+  # The image is tagged with the project ID and the commit SHA to ensure uniqueness.
 - name: gcr.io/cloud-builders/docker
-  args: [build, -t, gcr.io/$PROJECT_ID/flask-demo-app-prod:$COMMIT_SHA, .]
-# Push the Docker image to Google Container Registry
+  args: [build, -t, gcr.io//flask-demo-app-prod:, .]
+
+  # Step 2: Push the built Docker image to Google Container Registry (GCR).
+  # This makes the image available for deployment.
 - name: gcr.io/cloud-builders/docker
-  args: [push, gcr.io/$PROJECT_ID/flask-demo-app-prod:$COMMIT_SHA]
-# Deploy the Docker image to Google Cloud Run
+  args: [push, gcr.io//flask-demo-app-prod:]
+
+  # Step 3: Deploy the Docker image to Google Cloud Run.
+  # This makes the application accessible via a public URL.
+  # --allow-unauthenticated makes the service publicly available.
 - name: gcr.io/google-cloud-sdk
   entrypoint: gcloud
-  args: [run, deploy, flask-demo-app-prod, --image, gcr.io/$PROJECT_ID/flask-demo-app-prod:$COMMIT_SHA, --region, us-central1, --platform, managed, --allow-unauthenticated]
-# The image to be pushed to the registry
+  args:
+    - run
+    - deploy
+    - flask-demo-app-prod
+    - --image
+    - gcr.io//flask-demo-app-prod:
+    - --region
+    - us-central1
+    - --platform
+    - managed
+    - --allow-unauthenticated
+
+# List of images that will be built and pushed by this pipeline.
+# This is used by Google Cloud Build to display image details in the build summary.
 images:
-- gcr.io/$PROJECT_ID/flask-demo-app-prod:$COMMIT_SHA
+- gcr.io//flask-demo-app-prod:
